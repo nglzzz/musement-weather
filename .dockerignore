@@ -1,0 +1,13 @@
+.git/
+.idea
+node_modules
+vendor
+var/cache
+var/log
+var/spool
+var/sessions
+var/profiler
+build
+public/assets
+.phpunit
+.phpunit.result.cache

@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:12.3-alpine
+    container_name: musement_weather.postgres
+    restart: on-failure
+    volumes:
+      - musement_weather_postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER:-root}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+      POSTGRES_DB: ${DB_DATABASE:-MusementWeather}
+    ports:
+      - ${DOCKER_DB_PORT:-5432}:5432
+    networks:
+      - musement_weather
+
+  web:
+    image: musement_weather/web:local
+    build:
+      context: ./
+      dockerfile: docker/dev/containers/web/Dockerfile
+    restart: on-failure
+    depends_on:
+      - app
+    networks:
+      - musement_weather
+
+  app:
+    image: musement_weather/app:local
+    build:
+      context: ./
+      dockerfile: docker/dev/containers/app/Dockerfile
+    working_dir: /app
+    user: ${CURRENT_USER:-1000:1000}
+    environment:
+      - PHP_IDE_CONFIG=serverName=_
+    expose:
+      - 9000
+    volumes:
+      - .:/app
+      - /app/vendor
+    depends_on:
+      - database
+    networks:
+      - musement_weather
+
+volumes:
+  musement_weather_postgres:

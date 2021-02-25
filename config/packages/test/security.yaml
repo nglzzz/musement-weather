@@ -1,0 +1,7 @@
+security:
+  encoders:
+    App\Entity\User:
+      # algorithm: md5 # change to md5 if you want good performance, but in this case you need to run tests from separated container
+      algorithm: bcrypt # enough for tests. MD5 more faster than bcrypt
+      encode_as_base64: false
+      iterations: 0

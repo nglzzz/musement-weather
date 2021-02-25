@@ -1,0 +1,23 @@
+monolog:
+    handlers:
+        main:
+            type: group
+            members: [logfile, stderr]
+        logfile:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: info
+            channels: ['!event', '!doctrine']
+        stderr:
+            type: stream
+            path:  "php://stderr"
+            level: warning
+            channels: ['!event', '!doctrine']
+        errors:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.errors.log"
+            level: error
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ["!event", "!doctrine"]

@@ -1,0 +1,13 @@
+path: ./
+jobs: 10
+cache: var/cache/phplint/phplint.cache
+extensions:
+    - php
+exclude:
+    - vendor
+    - bin
+    - docker
+    - scripts
+    - templates
+    - tools
+    - var

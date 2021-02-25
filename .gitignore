@@ -1,52 +1,71 @@
-# Cache and logs (Symfony2)
-/app/cache/*
-/app/logs/*
-!app/cache/.gitkeep
-!app/logs/.gitkeep
+# Configs
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/*php.ini
+/docker/dev/etc/php/php.ini
+/docker/etc/php/php.ini
 
-# Email spool folder
-/app/spool/*
+# Assets
+/public/bundles/
 
-# Cache, session files and logs (Symfony3)
-/var/cache/*
-/var/logs/*
-/var/sessions/*
-!var/cache/.gitkeep
-!var/logs/.gitkeep
-!var/sessions/.gitkeep
+# Temp files
+/var/
 
-# Logs (Symfony4)
-/var/log/*
-!var/log/.gitkeep
-
-# Parameters
-/app/config/parameters.yml
-/app/config/parameters.ini
-
-# Managed by Composer
-/app/bootstrap.php.cache
-/var/bootstrap.php.cache
-/bin/*
-!bin/console
-!bin/symfony_requirements
+# Dependencies
 /vendor/
+node_modules/
 
-# Assets and user uploads
-/web/bundles/
-/web/uploads/
+# IDE configs
+.idea
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+/.vscode
 
-# PHPUnit
-/app/phpunit.xml
+# Log files and databases
+*.log
+*.sql
+*.sqlite
+
+# Packaged files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Not ignore
+!*.gitkeep
+!*.gitignore
+
+# code checkers
+/.php_cs
+/.php_cs.cache
+.phpunit
+.phpunit.result.cache
 /phpunit.xml
+/.phpcs-cache
+/phpcs.xml
+phpstan.neon
 
-# Build data
-/build/
+tools/http-client/http-client.private.env.json
 
-# Composer PHAR
-/composer.phar
+###> friendsofphp/php-cs-fixer ###
+/.php_cs
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
 
-# Backup entities generated with doctrine:generate:entities command
-**/Entity/*~
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
 
-# Embedded web-server pid file
-/.web-server-pid
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###

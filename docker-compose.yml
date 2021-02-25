@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  web:
+    image: musement_weather/web:latest
+    build:
+      context: ./
+      dockerfile: docker/prod/containers/web/Dockerfile
+    container_name: musement_weather.web
+    restart: on-failure
+    ports:
+      - ${DOCKER_WEB_PORT:-80}:80
+    depends_on:
+      - app
+    networks:
+      - musement_weather
+
+  app:
+    image: musement_weather/app:latest
+    build:
+      context: ./
+      dockerfile: docker/prod/containers/app/Dockerfile
+    restart: on-failure
+    container_name: musement_weather.app
+    volumes:
+      - .:/app
+      - /app/vendor
+    depends_on:
+      - database
+    networks:
+      - musement_weather
+
+  elastica:
+    image: elasticsearch:7.7.1
+    container_name: musement_weather.elasticsearch
+    environment:
+      - discovery.type=single-node
+    networks:
+      - musement_weather
+
+networks:
+  musement_weather:
+    name: musement_weather
+    driver: bridge

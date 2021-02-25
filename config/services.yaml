@@ -1,0 +1,19 @@
+parameters:
+    weather_api_key: '%env(WEATHER_API_AUTH_KEY)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
