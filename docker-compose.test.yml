@@ -47,12 +47,6 @@ services:
     networks:
       - musement_weather_test
 
-  elastica:
-    image: elasticsearch:7.7.1
-    container_name: musement_weather.test.elasticsearch
-    networks:
-      - musement_weather_test
-
 volumes:
   musement_weather_test_postgres:
 

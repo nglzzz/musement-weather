@@ -15,3 +15,13 @@ framework:
     #fragments: true
     php_errors:
         log: true
+
+    http_client:
+        scoped_clients:
+            musementApiClient:
+                base_uri: '%env(MUSEMENT_API_URI)%'
+                headers:
+                    Accept: 'application/json'
+                retry_failed:
+                    max_retries: 3
+                    delay: 1000

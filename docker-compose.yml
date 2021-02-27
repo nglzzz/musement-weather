@@ -29,14 +29,6 @@ services:
     networks:
       - musement_weather
 
-  elastica:
-    image: elasticsearch:7.7.1
-    container_name: musement_weather.elasticsearch
-    environment:
-      - discovery.type=single-node
-    networks:
-      - musement_weather
-
 networks:
   musement_weather:
     name: musement_weather
