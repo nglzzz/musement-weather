@@ -1,6 +1,6 @@
 <?php
 
-namespace App\CitySynchronization;
+namespace App\Synchronization\City;
 
 use Psr\Log\LoggerInterface;
 

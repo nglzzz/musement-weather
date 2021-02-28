@@ -40,7 +40,7 @@ class CitiesFixtures extends Fixture implements DependentFixtureInterface
             [
                 'name' => 'Amsterdam',
                 'code' => 'amsterdam',
-                'sourceId' => 1,
+                'sourceId' => 57,
                 'latitude' => 52.374,
                 'longitude' => 4.9,
                 'countryReference' => \sprintf('%s_%s', CountiesFixtures::REFERENCE_PREFIX, 'NL'),
@@ -48,7 +48,7 @@ class CitiesFixtures extends Fixture implements DependentFixtureInterface
             [
                 'name' => 'Paris',
                 'code' => 'paris',
-                'sourceId' => 2,
+                'sourceId' => 40,
                 'latitude' => 48.866,
                 'longitude' => 2.355,
                 'countryReference' => \sprintf('%s_%s', CountiesFixtures::REFERENCE_PREFIX, 'FR'),
@@ -56,7 +56,7 @@ class CitiesFixtures extends Fixture implements DependentFixtureInterface
             [
                 'name' => 'Rome',
                 'code' => 'rome',
-                'sourceId' => 3,
+                'sourceId' => 2,
                 'latitude' => 41.898,
                 'longitude' => 12.483,
                 'countryReference' => \sprintf('%s_%s', CountiesFixtures::REFERENCE_PREFIX, 'IT'),

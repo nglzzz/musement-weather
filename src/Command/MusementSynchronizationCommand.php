@@ -2,7 +2,8 @@
 
 namespace App\Command;
 
-use App\CitySynchronization\MusementCitySynchronization;
+use App\Synchronization\City\MusementCitySynchronization;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,8 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MusementSynchronizationCommand extends Command
 {
-    protected static $defaultName = 'app:musement-city-synchronization';
-    protected static $defaultDescription = 'Create or update cities from Musement API';
+    public const NAME = 'app:musement-city-synchronization';
 
     private MusementCitySynchronization $synchronization;
 
@@ -28,16 +28,14 @@ class MusementSynchronizationCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
+            ->setName(self::NAME)
+            ->setDescription('Create or update cities from Musement API')
             ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Execute the synchronization as a dry run.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $logger = new ConsoleLogger($output, $verbosityLevelMap = [
-            LogLevel::INFO => OutputInterface::VERBOSITY_VERBOSE,
-            LogLevel::DEBUG => OutputInterface::VERBOSITY_VERY_VERBOSE,
-        ]);
+        $logger = $this->getLogger($output);
 
         $io = new SymfonyStyle($input, $output);
 
@@ -52,16 +50,25 @@ class MusementSynchronizationCommand extends Command
             return Command::FAILURE;
         }
         $io->info(\sprintf(
-            'Created cities: %d. Updated cities: %d. Created countries: %d.',
+            'Created cities: %d. Updated cities: %d. Created countries: %d. Skipped cities: %d',
             $result['createdCities'],
             $result['updatedCities'],
             $result['createdCountries'],
+            $result['skippedCities'],
         ));
 
-        $io->success(\sprintf(
-            'Synchronization has been successfully completed',
-        ));
+        $io->success(
+            'Synchronization has been successfully completed'
+        );
 
         return Command::SUCCESS;
+    }
+
+    private function getLogger(OutputInterface $output): LoggerInterface
+    {
+        return new ConsoleLogger($output, $verbosityLevelMap = [
+            LogLevel::INFO => OutputInterface::VERBOSITY_VERBOSE,
+            LogLevel::DEBUG => OutputInterface::VERBOSITY_VERY_VERBOSE,
+        ]);
     }
 }

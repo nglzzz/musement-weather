@@ -13,10 +13,13 @@ abstract class DataCollection
     protected EntityRepository $repository;
     protected ArrayCollection $collection;
 
-    public function __construct()
+    public function __construct(EntityRepository $repository)
     {
         $this->collection = new ArrayCollection();
+        $this->repository = $repository;
     }
+
+    abstract public function find($searchColumn);
 
     public function getAll(): Collection
     {
@@ -24,14 +27,12 @@ abstract class DataCollection
             return $this->collection;
         }
 
-        foreach ($this->repository->findAll() as $country) {
-            $this->collection->add($country);
+        foreach ($this->repository->findAll() as $item) {
+            $this->collection->add($item);
         }
 
         return $this->collection;
     }
-
-    abstract public function find($searchColumn);
 
     public function add($item): self
     {

@@ -11,9 +11,7 @@ class CityCollection extends DataCollection
 {
     public function __construct(CityRepository $cityRepository)
     {
-        parent::__construct();
-
-        $this->repository = $cityRepository;
+        parent::__construct($cityRepository);
     }
 
     public function find($code): ?City

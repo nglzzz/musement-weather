@@ -198,6 +198,9 @@
     "phpspec/prophecy": {
         "version": "1.12.2"
     },
+    "phpspec/prophecy-phpunit": {
+        "version": "v2.0.1"
+    },
     "phpstan/phpstan": {
         "version": "0.12.79"
     },

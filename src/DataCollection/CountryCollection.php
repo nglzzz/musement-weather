@@ -11,9 +11,7 @@ class CountryCollection extends DataCollection
 {
     public function __construct(CountryRepository $countryRepository)
     {
-        parent::__construct();
-
-        $this->repository = $countryRepository;
+        parent::__construct($countryRepository);
     }
 
     public function find($isoCode): ?Country

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\CitySynchronization;
+namespace App\Synchronization\City;
 
 use App\DataCollection\CityCollection;
 use App\DataCollection\CountryCollection;
@@ -45,17 +45,19 @@ class MusementCitySynchronization implements CitySynchronization
 
         $batches = \array_chunk($cities, self::BATCH_SIZE);
 
-        $createdCities = $updatedCities = $createdCountries = 0;
+        $createdCities = $updatedCities = $createdCountries = $skippedCities = 0;
 
         foreach ($batches as $batch) {
             $batchResult = $this->processBatch($batch, $logger);
 
-            $createdCities += $batchResult['createdCities'];
-            $updatedCities += $batchResult['updatedCities'];
-            $createdCountries += $batchResult['createdCountries'];
-
             if (!$dryRun) {
                 $this->em->flush();
+
+                $createdCities += $batchResult['createdCities'];
+                $updatedCities += $batchResult['updatedCities'];
+                $createdCountries += $batchResult['createdCountries'];
+            } else {
+                $skippedCities += $batchResult['createdCities'] + $batchResult['updatedCities'];
             }
         }
 
@@ -63,6 +65,7 @@ class MusementCitySynchronization implements CitySynchronization
             'createdCities' => $createdCities,
             'updatedCities' => $updatedCities,
             'createdCountries' => $createdCountries,
+            'skippedCities' => $skippedCities,
         ];
     }
 
@@ -78,7 +81,7 @@ class MusementCitySynchronization implements CitySynchronization
                 );
                 $this->countryCollection->add($country);
 
-                $createdCountries++;
+                ++$createdCountries;
 
                 $logger->info(\sprintf(
                     'New country for saving in the database: %s (%s)',
@@ -98,7 +101,7 @@ class MusementCitySynchronization implements CitySynchronization
                 $city = new City($cityItem['name'], $cityItem['code'], $country);
                 $this->cityCollection->add($city);
 
-                $createdCities++;
+                ++$createdCities;
 
                 $logger->info(\sprintf(
                     'New city for saving in the database: %s (%s)',
@@ -106,7 +109,7 @@ class MusementCitySynchronization implements CitySynchronization
                     $cityItem['code'],
                 ));
             } else {
-                $updatedCities++;
+                ++$updatedCities;
 
                 $logger->debug(\sprintf(
                     'City to update: %s (%s)',
