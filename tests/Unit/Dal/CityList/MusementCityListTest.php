@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\MusementApi;
+namespace App\Tests\Unit\Dal\CityList;
 
-use App\MusementApi\CityGetter;
+use App\Dal\CityList\MusementCityList;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -13,20 +13,20 @@ use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class CityGetterTest extends TestCase
+class MusementCityListTest extends TestCase
 {
     use ProphecyTrait;
 
     private ObjectProphecy $httpClient;
     private ObjectProphecy $logger;
-    private CityGetter $cityGetter;
+    private MusementCityList $cityGetter;
 
     public function setUp(): void
     {
         $this->httpClient = $this->prophesize(HttpClientInterface::class);
         $this->logger = $this->prophesize(LoggerInterface::class);
 
-        $this->cityGetter = new CityGetter($this->httpClient->reveal(), $this->logger->reveal());
+        $this->cityGetter = new MusementCityList($this->httpClient->reveal(), $this->logger->reveal());
     }
 
     public function testGetAllThrowsRuntimeExceptionWhenRequestThrowsException(): void
@@ -58,7 +58,18 @@ class CityGetterTest extends TestCase
         $this->httpClient->request('GET', '/api/v3/cities')->shouldBeCalledOnce()->willReturn($response->reveal());
         $this->logger->error(Argument::type('string'), Argument::type('array'))->shouldNotBeCalled();
 
-        $response->toArray()->willReturn(['some data']);
+        $response->toArray()->willReturn([[
+            'id' => 1,
+            'name' => 'City name',
+            'code' => 'city_code',
+            'latitude' => 1.0,
+            'longitude' => 2.0,
+            'country' => [
+                'name' => 'Country name',
+                'iso_code' => 'AA',
+            ],
+            'time_zone' => 'Euroupe/Amsterdam',
+        ]]);
 
         $this->cityGetter->getAll();
     }

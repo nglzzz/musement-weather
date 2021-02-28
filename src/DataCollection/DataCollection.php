@@ -19,8 +19,6 @@ abstract class DataCollection
         $this->repository = $repository;
     }
 
-    abstract public function find($searchColumn);
-
     public function getAll(): Collection
     {
         if (!$this->collection->isEmpty()) {

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Synchronization\City;
 
+use App\Dal\CityList\CityListInterface;
 use App\DataCollection\CityCollection;
 use App\DataCollection\CountryCollection;
 use App\Entity\City;
 use App\Entity\Country;
-use App\MusementApi\CityGetterInterface;
 use App\Synchronization\City\MusementCitySynchronization;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,21 +23,21 @@ class MusementCitySynchronizationTest extends TestCase
     use ProphecyTrait;
 
     private ObjectProphecy $em;
-    private ObjectProphecy $cityGetter;
+    private ObjectProphecy $cityList;
     private ObjectProphecy $cityCollection;
     private ObjectProphecy $countryCollection;
     private MusementCitySynchronization $citySynchronization;
 
     public function setUp(): void
     {
-        $this->em = $this->prophesize(EntityManagerInterface::class);
-        $this->cityGetter = $this->prophesize(CityGetterInterface::class);
+        $this->em             = $this->prophesize(EntityManagerInterface::class);
+        $this->cityList       = $this->prophesize(CityListInterface::class);
         $this->cityCollection = $this->prophesize(CityCollection::class);
         $this->countryCollection = $this->prophesize(CountryCollection::class);
 
         $this->citySynchronization = new MusementCitySynchronization(
             $this->em->reveal(),
-            $this->cityGetter->reveal(),
+            $this->cityList->reveal(),
             $this->cityCollection->reveal(),
             $this->countryCollection->reveal(),
         );
@@ -100,6 +100,8 @@ class MusementCitySynchronizationTest extends TestCase
         $logger = $this->givenLogger();
 
         $existedCountry = $this->prophesize(Country::class);
+        $existedCountry->setName(Argument::type('string'))->shouldBeCalledOnce();
+        $existedCountry->setIsoCode(Argument::type('string'))->shouldBeCalledOnce();
 
         $this->countryCollection->find(Argument::type('string'))->shouldBeCalled()->willReturn($existedCountry);
         $logger->debug('Country to update: Netherlands (NL)');
@@ -144,7 +146,7 @@ class MusementCitySynchronizationTest extends TestCase
 
     private function givenCities(array $cities = []): void
     {
-        $this->cityGetter->getAll()->shouldBeCalledOnce()->willReturn($cities ?: $this->getCitiesArray());
+        $this->cityList->getAll()->shouldBeCalledOnce()->willReturn($cities ?: $this->getCitiesArray());
     }
 
     private function givenCollections(array $cities = [], array $countries = []): void
@@ -159,7 +161,7 @@ class MusementCitySynchronizationTest extends TestCase
             [
                 'name' => 'Amsterdam',
                 'code' => 'amsterdam',
-                'id' => 57,
+                'sourceId' => 57,
                 'latitude' => 52.374,
                 'longitude' => 4.9,
                 'country' => [
@@ -172,7 +174,7 @@ class MusementCitySynchronizationTest extends TestCase
             [
                 'name' => 'Paris',
                 'code' => 'paris',
-                'id' => 40,
+                'sourceId' => 40,
                 'latitude' => 48.866,
                 'longitude' => 2.355,
                 'country' => [
@@ -185,7 +187,7 @@ class MusementCitySynchronizationTest extends TestCase
             [
                 'name' => 'Rome',
                 'code' => 'rome',
-                'id' => 2,
+                'sourceId' => 2,
                 'latitude' => 41.898,
                 'longitude' => 12.483,
                 'country' => [

@@ -1,4 +1,3 @@
-# see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
@@ -20,6 +19,15 @@ framework:
         scoped_clients:
             musementApiClient:
                 base_uri: '%env(MUSEMENT_API_URI)%'
+                headers:
+                    Accept: 'application/json'
+                retry_failed:
+                    max_retries: 3
+                    delay: 1000
+            weatherApiClient:
+                base_uri: '%env(WEATHERAPI_URI)%'
+                query:
+                    key: '%env(WEATHERAPI_TOKEN)%'
                 headers:
                     Accept: 'application/json'
                 retry_failed:

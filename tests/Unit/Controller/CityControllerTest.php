@@ -41,7 +41,7 @@ class CityControllerTest extends TestCase
 
         $this->logger->error(Argument::type('string'), Argument::type('array'));
 
-        $response = $this->controller->getList($handler->reveal());
+        $response = $this->controller->getListAction($handler->reveal());
 
         self::assertEquals(500, $response->getStatusCode());
     }
@@ -53,7 +53,7 @@ class CityControllerTest extends TestCase
         $cities = $this->getCitiesArray();
         $handler->handle()->willReturn($cities);
 
-        $response = $this->controller->getList($handler->reveal());
+        $response = $this->controller->getListAction($handler->reveal());
 
         self::assertEquals(200, $response->getStatusCode());
         self::assertEquals($cities, \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
@@ -67,7 +67,7 @@ class CityControllerTest extends TestCase
         $handler->handle($city)->shouldBeCalledOnce()->willThrow(\Exception::class);
         $this->logger->error(Argument::type('string'), Argument::type('array'));
 
-        $response = $this->controller->getCity($city->reveal(), $handler->reveal());
+        $response = $this->controller->getCityAction($city->reveal(), $handler->reveal());
 
         self::assertEquals(500, $response->getStatusCode());
     }
@@ -81,7 +81,7 @@ class CityControllerTest extends TestCase
 
         $handler->handle($city)->willReturn($cityResponseData);
 
-        $response = $this->controller->getCity($city->reveal(), $handler->reveal());
+        $response = $this->controller->getCityAction($city->reveal(), $handler->reveal());
 
         self::assertEquals(200, $response->getStatusCode());
         self::assertEquals($cityResponseData, \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));

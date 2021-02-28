@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Synchronization\City;
 
+use App\Dal\CityList\CityListInterface;
 use App\DataCollection\CityCollection;
+use App\DataCollection\CityCollectionInterface;
 use App\DataCollection\CountryCollection;
+use App\DataCollection\CountryCollectionInterface;
 use App\Entity\City;
 use App\Entity\Country;
-use App\MusementApi\CityGetterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -17,15 +19,17 @@ class MusementCitySynchronization implements CitySynchronization
     private const BATCH_SIZE = 25;
 
     private EntityManagerInterface $em;
-    private CityGetterInterface $cityGetter;
-    private CityCollection $cityCollection;
-    private CountryCollection $countryCollection;
+    private CityListInterface $cityGetter;
+    /** @var CityCollection|CityCollectionInterface */
+    private CityCollectionInterface $cityCollection;
+    /** @var CountryCollection|CountryCollectionInterface */
+    private CountryCollectionInterface $countryCollection;
 
     public function __construct(
         EntityManagerInterface $em,
-        CityGetterInterface $cityGetter,
-        CityCollection $cityCollection,
-        CountryCollection $countryCollection
+        CityListInterface $cityGetter,
+        CityCollectionInterface $cityCollection,
+        CountryCollectionInterface $countryCollection
     ) {
         $this->em = $em;
         $this->cityGetter = $cityGetter;
@@ -94,6 +98,8 @@ class MusementCitySynchronization implements CitySynchronization
                     $cityItem['name'],
                     $cityItem['code'],
                 ));
+                $country->setName($cityItem['country']['name']);
+                $country->setIsoCode($cityItem['country']['iso_code']);
             }
 
             // Update or create if exists
@@ -118,9 +124,9 @@ class MusementCitySynchronization implements CitySynchronization
                 ));
             }
 
-            $city->setLatitude((float) $cityItem['latitude']);
-            $city->setLongitude((float) $cityItem['longitude']);
-            $city->setSourceId((int) $cityItem['id']);
+            $city->setLatitude($cityItem['latitude']);
+            $city->setLongitude($cityItem['longitude']);
+            $city->setSourceId($cityItem['sourceId']);
 
             $this->em->persist($city);
         }
