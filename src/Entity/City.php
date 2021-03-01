@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class City
 {
     /**
+     * @Groups({"Default"})
+     *
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @ORM\Column(type="integer")

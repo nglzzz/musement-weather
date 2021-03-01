@@ -21,6 +21,8 @@ services:
       context: ./
       dockerfile: docker/dev/containers/web/Dockerfile
     restart: on-failure
+    volumes:
+      - ./public/build:/app/public/build
     depends_on:
       - app
     networks:

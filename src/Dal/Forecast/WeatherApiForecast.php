@@ -25,7 +25,7 @@ class WeatherApiForecast implements ForecastInterface
         try {
             $response = $this->makeCityRequest($city, $days);
 
-            return $this->prepareResultData($response->toArray());
+            return [$this->prepareResultData($response->toArray())];
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
 
@@ -74,13 +74,15 @@ class WeatherApiForecast implements ForecastInterface
 
     private function prepareResultData(array $responseData): array
     {
-        $data = [];
+        $data = [
+            'location' => $responseData['location']['name'],
+            'forecast' => [],
+        ];
 
         foreach ($responseData['forecast']['forecastday'] as $forecastDay) {
-            $location = $responseData['location']['name'];
             $date = $forecastDay['date'];
 
-            $data[$location][$date] = $forecastDay['day']['condition']['text'];
+            $data['forecast'][$date] = $forecastDay['day']['condition']['text'];
         }
 
         return $data;
