@@ -68,3 +68,167 @@ The command arguments:
 -v: Verbose mode
 -vv: Very verbose mode
 ```
+
+# Endpoints
+
+There are the following API endpoint:
+
+### Get cities
+
+**URL:** /api/v3/cities/
+
+**HTTP Method:** GET
+
+**Content-Type:** application/json
+
+**Example Request:**
+```
+curl --request 'GET' 'http://localhost:8085/api/v3/cities/' -i
+```
+### Response Codes:
+
+#### 200
+**Returned When:** Valid parameters were in request and the query to the database did not fail
+
+**Response Content Type:** application/json
+
+**Response Body:**
+```
+[
+    {
+        id: 401,
+        name: "Amsterdam",
+        code: "amsterdam",
+        sourceId: 57,
+        latitude: 52.374,
+        longitude: 4.9,
+        createdAt: "2021-02-28T17:54:23+00:00",
+        updatedAt: "2021-02-28T17:54:23+00:00"
+    },
+    {
+        id: 402,
+        name: "Paris",
+        code: "paris",
+        sourceId: 40,
+        latitude: 48.866,
+        longitude: 2.355,
+        createdAt: "2021-02-28T17:54:23+00:00",
+        updatedAt: "2021-02-28T17:54:23+00:00"
+    },
+    ...
+}
+```
+
+#### 500
+**Returned When:** Cities information from database fails
+
+**Response Content Type:**
+none (empty response)
+
+***
+
+
+### Get specific city
+
+**URL:** /api/v3/cities/[city]
+
+**HTTP Method:** GET
+
+**Content-Type:** application/json
+
+**Example Request:**
+```
+curl --request 'GET' 'http://localhost:8085/api/v3/cities/401' -i
+```
+### Response Codes:
+
+#### 200
+**Returned When:** Valid parameters were in request and the query to the database did not fail
+
+**Response Content Type:** application/json
+
+**Response Body:**
+```
+{
+    id: 401,
+    name: "Amsterdam",
+    code: "amsterdam",
+    sourceId: 57,
+    latitude: 52.374,
+    longitude: 4.9,
+    createdAt: "2021-02-28T17:54:23+00:00",
+    updatedAt: "2021-02-28T17:54:23+00:00"
+}
+```
+
+#### 404
+**Returned When:** City with [city] not found
+
+#### 500
+**Returned When:** City information from database fails
+
+**Response Content Type:**
+none (empty response)
+
+***
+
+### Get forecast
+
+**URL:** /api/v3/forecast/
+
+**HTTP Method:** GET
+
+**Content-Type:** application/json
+
+**Required Input:**
+```
+days - integer.
+```
+
+**Optional Input:**
+```
+city - integer. City id
+```
+
+**Example Request:**
+```
+curl --request 'GET' 'http://localhost:8085/api/v3/forecast/' -i
+```
+### Response Codes:
+
+#### 200
+**Returned When:** Valid parameters were in request and the query to the database did not fail
+
+**Response Content Type:** application/json
+
+**Response Body:**
+```
+[
+    {
+        location: "Amsterdam",
+        forecast: {
+            "2021-03-01": "Partly cloudy",
+            "2021-03-02": "Partly cloudy"
+        }
+    },
+    ...
+]
+```
+
+#### 400
+**Returned When:** Invalid input
+
+#### 500
+**Returned When:** City information from database fails
+
+**Response Body Format:**
+```
+{
+    "errors": "Error message"
+}
+```
+
+**Response Content Type:**
+none (empty response)
+
+***
