@@ -7,6 +7,8 @@ namespace App\Tests\Unit\Synchronization\City;
 use App\Dal\CityList\CityListInterface;
 use App\DataCollection\CityCollection;
 use App\DataCollection\CountryCollection;
+use App\Dto\MusementCity;
+use App\DtoCollection\MusementCityCollection;
 use App\Entity\City;
 use App\Entity\Country;
 use App\Synchronization\City\MusementCitySynchronization;
@@ -53,7 +55,7 @@ class MusementCitySynchronizationTest extends TestCase
         $this->cityCollection->find(Argument::type('string'))->shouldBeCalled()->willReturn(null);
         $this->cityCollection->add(Argument::type(City::class))->shouldBeCalled();
 
-        $this->givenCities();
+        $this->givenCities($this->getCitiesList());
         $this->givenCollections();
 
         $this->em->persist(Argument::type(City::class))->shouldBeCalled();
@@ -65,7 +67,7 @@ class MusementCitySynchronizationTest extends TestCase
         self::assertArrayHasKey('updatedCities', $result);
         self::assertArrayHasKey('createdCountries', $result);
         self::assertArrayHasKey('skippedCities', $result);
-        self::assertEquals(\count($this->getCitiesArray()), $result['skippedCities']);
+        self::assertEquals(\count($this->getCitiesList()), $result['skippedCities']);
     }
 
     public function testProcessInNonDryMode(): void
@@ -78,7 +80,7 @@ class MusementCitySynchronizationTest extends TestCase
         $this->cityCollection->find(Argument::type('string'))->shouldBeCalled()->willReturn(null);
         $this->cityCollection->add(Argument::type(City::class))->shouldBeCalled();
 
-        $this->givenCities();
+        $this->givenCities($this->getCitiesList());
         $this->givenCollections();
 
         $this->em->persist(Argument::type(City::class))->shouldBeCalled();
@@ -91,7 +93,7 @@ class MusementCitySynchronizationTest extends TestCase
         self::assertArrayHasKey('createdCountries', $result);
         self::assertArrayHasKey('skippedCities', $result);
 
-        self::assertEquals(\count($this->getCitiesArray()), $result['createdCities']);
+        self::assertEquals(\count($this->getCitiesList()), $result['createdCities']);
         self::assertEquals(0, $result['skippedCities']);
     }
 
@@ -112,7 +114,7 @@ class MusementCitySynchronizationTest extends TestCase
         $existedCity->setSourceId(Argument::type('int'))->shouldBeCalledOnce();
         $this->cityCollection->find(Argument::type('string'))->shouldBeCalled()->willReturn($existedCity);
 
-        $this->givenCities([$this->getCitiesArray()[0]]);
+        $this->givenCities([$this->getCitiesList()[0]]);
         $this->givenCollections([$existedCountry], [$existedCity]);
 
         $this->em->persist($existedCity)->shouldBeCalled();
@@ -137,7 +139,7 @@ class MusementCitySynchronizationTest extends TestCase
         $logger = $this->prophesize(LoggerInterface::class);
 
         $logger->info($dryRun ? 'Running in dry mode' : 'Synchronization started normally');
-        $logger->info(\sprintf('Musement API returned % cities', \count($this->getCitiesArray())));
+        $logger->info(\sprintf('Musement API returned % cities', \count($this->getCitiesList())));
         $logger->info('In the database we have 0 cities');
         $logger->info('In the database we have 0 countries');
 
@@ -146,7 +148,15 @@ class MusementCitySynchronizationTest extends TestCase
 
     private function givenCities(array $cities = []): void
     {
-        $this->cityList->getAll()->shouldBeCalledOnce()->willReturn($cities ?: $this->getCitiesArray());
+        $collection = $this->prophesize(MusementCityCollection::class);
+        $collection->count()->willReturn(\count($cities));
+
+        $batchedCollection = new MusementCityCollection($cities);
+        $collection->getBatches(25)->willReturn([
+            $batchedCollection,
+        ]);
+
+        $this->cityList->getAll()->shouldBeCalledOnce()->willReturn($collection->reveal());
     }
 
     private function givenCollections(array $cities = [], array $countries = []): void
@@ -155,48 +165,39 @@ class MusementCitySynchronizationTest extends TestCase
         $this->countryCollection->getAll()->willReturn(new ArrayCollection($countries));
     }
 
-    private function getCitiesArray(): array
+    private function getCitiesList(): array
     {
+        $city1 = $this->prophesize(MusementCity::class);
+        $city1->getName()->willReturn('Amsterdam');
+        $city1->getCode()->willReturn('amsterdam');
+        $city1->getSourceId()->willReturn(57);
+        $city1->getLatitude()->willReturn(52.374);
+        $city1->getLongitude()->willReturn(4.9);
+        $city1->getCountryName()->willReturn('Netherlands');
+        $city1->getCountryCode()->willReturn('NL');
+
+        $city2 = $this->prophesize(MusementCity::class);
+        $city2->getName()->willReturn('Paris');
+        $city2->getCode()->willReturn('paris');
+        $city2->getSourceId()->willReturn(40);
+        $city2->getLatitude()->willReturn(48.866);
+        $city2->getLongitude()->willReturn(2.355);
+        $city2->getCountryName()->willReturn('France');
+        $city2->getCountryCode()->willReturn('FR');
+
+        $city3 = $this->prophesize(MusementCity::class);
+        $city3->getName()->willReturn('Rome');
+        $city3->getCode()->willReturn('rome');
+        $city3->getSourceId()->willReturn(2);
+        $city3->getLatitude()->willReturn(41.898);
+        $city3->getLongitude()->willReturn(12.483);
+        $city3->getCountryName()->willReturn('Italy');
+        $city3->getCountryCode()->willReturn('IT');
+
         return [
-            [
-                'name' => 'Amsterdam',
-                'code' => 'amsterdam',
-                'sourceId' => 57,
-                'latitude' => 52.374,
-                'longitude' => 4.9,
-                'country' => [
-                    'name' => 'Netherlands',
-                    'iso_code' => 'NL',
-                ],
-                'createdAt' => \date('c'),
-                'updatedAt' => \date('c'),
-            ],
-            [
-                'name' => 'Paris',
-                'code' => 'paris',
-                'sourceId' => 40,
-                'latitude' => 48.866,
-                'longitude' => 2.355,
-                'country' => [
-                    'name' => 'France',
-                    'iso_code' => 'FR',
-                ],
-                'createdAt' => \date('c'),
-                'updatedAt' => \date('c'),
-            ],
-            [
-                'name' => 'Rome',
-                'code' => 'rome',
-                'sourceId' => 2,
-                'latitude' => 41.898,
-                'longitude' => 12.483,
-                'country' => [
-                    'name' => 'Italy',
-                    'iso_code' => 'IT',
-                ],
-                'createdAt' => \date('c'),
-                'updatedAt' => \date('c'),
-            ],
+            $city1->reveal(),
+            $city2->reveal(),
+            $city3->reveal(),
         ];
     }
 }

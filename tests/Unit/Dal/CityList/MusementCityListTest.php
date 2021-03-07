@@ -69,6 +69,7 @@ class MusementCityListTest extends TestCase
                 'iso_code' => 'AA',
             ],
             'time_zone' => 'Euroupe/Amsterdam',
+            'weight' => 1,
         ]]);
 
         $this->cityGetter->getAll();

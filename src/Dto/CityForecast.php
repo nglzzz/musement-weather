@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\RequestData;
+namespace App\Dto;
 
 use App\Entity\City;
 use Symfony\Component\Validator\Constraints as Assert;

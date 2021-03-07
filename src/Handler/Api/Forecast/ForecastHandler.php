@@ -6,7 +6,7 @@ namespace App\Handler\Api\Forecast;
 
 use App\Dal\Forecast\WeatherApiForecast;
 use App\Repository\CityRepository;
-use App\RequestData\CityForecast;
+use App\Dto\CityForecast;
 
 class ForecastHandler
 {

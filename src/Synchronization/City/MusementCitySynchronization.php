@@ -9,6 +9,8 @@ use App\DataCollection\CityCollection;
 use App\DataCollection\CityCollectionInterface;
 use App\DataCollection\CountryCollection;
 use App\DataCollection\CountryCollectionInterface;
+use App\Dto\MusementCity;
+use App\DtoCollection\MusementCityCollection;
 use App\Entity\City;
 use App\Entity\Country;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,11 +45,11 @@ class MusementCitySynchronization implements CitySynchronization
 
         $cities = $this->cityGetter->getAll();
 
-        $logger->info(\sprintf('Musement API returned %d cities', \count($cities)));
+        $logger->info(\sprintf('Musement API returned %d cities', $cities->count()));
         $logger->info(\sprintf('In the database we have %s cities', $this->cityCollection->getAll()->count()));
         $logger->info(\sprintf('In the database we have %s countries', $this->countryCollection->getAll()->count()));
 
-        $batches = \array_chunk($cities, self::BATCH_SIZE);
+        $batches = $cities->getBatches(self::BATCH_SIZE);
 
         $createdCities = $updatedCities = $createdCountries = $skippedCities = 0;
 
@@ -73,15 +75,16 @@ class MusementCitySynchronization implements CitySynchronization
         ];
     }
 
-    private function processBatch(array $batch, LoggerInterface $logger): array
+    private function processBatch(MusementCityCollection $batch, LoggerInterface $logger): array
     {
         $createdCities = $updatedCities = $createdCountries = 0;
 
-        foreach ($batch as $cityItem) {
-            if (($country = $this->countryCollection->find($cityItem['country']['iso_code'])) === null) {
+        /** @var MusementCity $musementCity */
+        foreach ($batch as $musementCity) {
+            if (($country = $this->countryCollection->find($musementCity->getCountryCode())) === null) {
                 $country = new Country(
-                    $cityItem['country']['name'],
-                    $cityItem['country']['iso_code']
+                    $musementCity->getCountryName(),
+                    $musementCity->getCountryCode(),
                 );
                 $this->countryCollection->add($country);
 
@@ -89,44 +92,44 @@ class MusementCitySynchronization implements CitySynchronization
 
                 $logger->info(\sprintf(
                     'New country for saving in the database: %s (%s)',
-                    $cityItem['country']['name'],
-                    $cityItem['country']['iso_code'],
+                    $musementCity->getCountryName(),
+                    $musementCity->getCountryCode(),
                 ));
             } else {
                 $logger->debug(\sprintf(
                     'Country to update: %s (%s)',
-                    $cityItem['name'],
-                    $cityItem['code'],
+                    $musementCity->getCountryName(),
+                    $musementCity->getCountryCode(),
                 ));
-                $country->setName($cityItem['country']['name']);
-                $country->setIsoCode($cityItem['country']['iso_code']);
+                $country->setName($musementCity->getCountryName());
+                $country->setIsoCode($musementCity->getCountryCode());
             }
 
             // Update or create if exists
-            if (($city = $this->cityCollection->find($cityItem['code'])) === null) {
-                $city = new City($cityItem['name'], $cityItem['code'], $country);
+            if (($city = $this->cityCollection->find($musementCity->getCode())) === null) {
+                $city = new City($musementCity->getName(), $musementCity->getCode(), $country);
                 $this->cityCollection->add($city);
 
                 ++$createdCities;
 
                 $logger->info(\sprintf(
                     'New city for saving in the database: %s (%s)',
-                    $cityItem['name'],
-                    $cityItem['code'],
+                    $musementCity->getName(),
+                    $musementCity->getCode(),
                 ));
             } else {
                 ++$updatedCities;
 
                 $logger->debug(\sprintf(
                     'City to update: %s (%s)',
-                    $cityItem['name'],
-                    $cityItem['code'],
+                    $musementCity->getName(),
+                    $musementCity->getCode(),
                 ));
             }
 
-            $city->setLatitude($cityItem['latitude']);
-            $city->setLongitude($cityItem['longitude']);
-            $city->setSourceId($cityItem['sourceId']);
+            $city->setLatitude($musementCity->getLatitude());
+            $city->setLongitude($musementCity->getLongitude());
+            $city->setSourceId($musementCity->getSourceId());
 
             $this->em->persist($city);
         }

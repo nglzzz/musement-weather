@@ -2,7 +2,9 @@
 
 namespace App\Dal\CityList;
 
+use App\DtoCollection\MusementCityCollection;
+
 interface CityListInterface
 {
-    public function getAll(): array;
+    public function getAll(): MusementCityCollection;
 }
