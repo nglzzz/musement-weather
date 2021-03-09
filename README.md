@@ -1,4 +1,7 @@
 # Musement Weather Application
+
+Nikita Deriglazov from Jagaad
+
 Backend PHP tech homework
 
 This application allows you to get weather information for all or specific cities Musement
